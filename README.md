@@ -1,5 +1,5 @@
 # z-theme-switcher
-> A WordPress pulgin that lets selected user roles switch temporarily and non-persistent to another (than the active) theme.
+> A WordPress plugin that lets selected user roles switch temporarily and non-persistent to another (than the active) theme.
 
 In most of our custom WordPress themes, we like to view our pages without the admin bar. Still, while developing or maintaining a website, we like to have access to some of the most common admin items. This tiny menu helps a bit.
 
