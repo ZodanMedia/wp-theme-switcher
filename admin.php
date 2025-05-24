@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Settings page for WP Theme Switcher
+ * Settings page for Z WP Theme Switcher
  *
  * Author: Zodan
  * Author URI: https://zodan.nl
@@ -42,7 +42,7 @@ if ( !function_exists( 'z_theme_switcher_register_settings' ) ) {
 			'z_theme_switcher_plugin'
 		);
 
-        // Veld: Thema-selectie
+        // Field: Theme selection
 		add_settings_field(
 			'z_theme_switcher_select_theme',
 			__('Theme to switch to', 'z-theme-switcher'),
@@ -51,7 +51,7 @@ if ( !function_exists( 'z_theme_switcher_register_settings' ) ) {
 			'z_theme_switcher_main_section'
 		);
 
-        // Veld: Rollen selectie
+        // Field: Role selection
 		add_settings_field(
 			'z_theme_switcher_select_roles',
 			__('Roles that can switch theme', 'z-theme-switcher'),
@@ -59,6 +59,15 @@ if ( !function_exists( 'z_theme_switcher_register_settings' ) ) {
 			'z_theme_switcher_plugin',
 			'z_theme_switcher_main_section'
 		);
+
+        // Field: Roles that can use the toggle
+        add_settings_field(
+            'z_theme_switcher_toggle_roles',
+            __('Roles that see the toggle button', 'z-theme-switcher'),
+            'z_theme_switcher_render_toggle_roles_checkboxes',
+            'z_theme_switcher_plugin',
+            'z_theme_switcher_main_section'
+        );
     }
 
     add_action( 'admin_init', 'z_theme_switcher_register_settings' );
@@ -97,6 +106,23 @@ if ( !function_exists( 'z_theme_switcher_register_settings' ) ) {
         }
     }
 
+    function z_theme_switcher_render_toggle_roles_checkboxes() {
+        global $wp_roles;
+        $roles = $wp_roles->roles;
+        $options = get_option( 'z_theme_switcher_plugin_options' );
+        $enabled_roles = isset( $options['toggle_roles'] ) ? $options['toggle_roles'] : array();
+
+        foreach ( $roles as $role_slug => $role_details ) {
+            printf(
+                '<label><input type="checkbox" name="z_theme_switcher_plugin_options[toggle_roles][]" value="%s" %s> %s</label><br>',
+                esc_attr( $role_slug ),
+                checked( in_array( $role_slug, $enabled_roles ), true, false ),
+                esc_html( $role_details['name'] )
+            );
+        }
+    }
+
+
     function z_theme_switcher_plugin_options_validate( $input ) {
         $output = array();
 
@@ -112,6 +138,13 @@ if ( !function_exists( 'z_theme_switcher_register_settings' ) ) {
             $all_roles = array_keys( $wp_roles->roles );
             $valid_roles = array_intersect( $input['roles'], $all_roles );
             $output['roles'] = array_map( 'sanitize_text_field', $valid_roles );
+        }
+
+        if ( isset( $input['toggle_roles'] ) && is_array( $input['toggle_roles'] ) ) {
+            global $wp_roles;
+            $all_roles = array_keys( $wp_roles->roles );
+            $valid_toggle_roles = array_intersect( $input['toggle_roles'], $all_roles );
+            $output['toggle_roles'] = array_map( 'sanitize_text_field', $valid_toggle_roles );
         }
 
         return $output;

@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name: WP Theme Switcher
+ * Plugin Name: Z Theme Switcher
  * Contributors: martenmoolenaar
  * Plugin URI: https://speelwei.zodan.nl/wp-theme-switcher/
  * Tags: switch theme, theme development, development
@@ -41,13 +41,10 @@ add_action( 'setup_theme', function() {
 
 
 
-
-
-
 class zSwitchTheme {
 
 	protected static $instance = NULL;
-	public $plugin_version = '0.0.2';
+	public $plugin_version = '1.0';
 	public $plugin_url = '';
 	public $plugin_path = '';
 
@@ -71,6 +68,11 @@ class zSwitchTheme {
 
 		// Front-end only logic
 		if ( ! is_admin() && is_user_logged_in() ) {
+			add_action( 'wp_enqueue_scripts', function(){
+				$stylesheet = $this->plugin_url . '/styles.css';
+				wp_enqueue_style( 'z-theme-switcher-styles', esc_url($stylesheet), array( 'dashicons' ), 1.0 );
+			});
+        	
 			add_action( 'wp_footer', [ $this, 'render_switch_theme_toggle' ] );
 			// since the "none" them does not call wp_footer, we made a custom action
 			add_action( 'z_theme_switcher_show_toggle', [ $this, 'render_switch_theme_toggle' ] );
@@ -84,7 +86,15 @@ class zSwitchTheme {
 			if ( empty( $options['theme'] ) ) return;
 			if ( ! self::user_has_roles( $options['roles'] ) ) return;
 
-			$override = isset( $_COOKIE['z_theme_switcher_override'] ) && $_COOKIE['z_theme_switcher_override'] === '1';
+			$current_user = wp_get_current_user();
+			$toggle_roles = isset( $options['toggle_roles'] ) ? (array) $options['toggle_roles'] : [];
+
+			$user_in_toggle_roles = !empty( array_intersect( $toggle_roles, (array) $current_user->roles ) );
+
+			$override_cookie = isset( $_COOKIE['z_theme_switcher_override'] ) && $_COOKIE['z_theme_switcher_override'] === '1';
+
+			// Nieuw gedrag:
+			$override = $user_in_toggle_roles ? $override_cookie : true;
 
 			if ( $override ) {
 				add_filter( 'template', [ $this, 'filter_template' ], 99 );
@@ -129,30 +139,52 @@ class zSwitchTheme {
 
 
 	public function handle_theme_cookie() {
-		if ( isset( $_GET['z_theme_switcher'] ) ) {
+		if ( isset( $_GET['z_theme_switcher'], $_GET['_zts_nonce'] ) ) {
+
+			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+			$nonce = isset( $_GET['_zts_nonce'] ) ? wp_unslash( $_GET['_zts_nonce'] ) : '';
+			if ( ! is_string( $nonce ) || ! wp_verify_nonce( $nonce, 'z_theme_switch' ) ) {
+				wp_die( esc_html__( 'Security check failed', 'z-theme-switcher' ) );
+			}
+
 			if ( $_GET['z_theme_switcher'] === 'default' ) {
 				setcookie( 'z_theme_switcher_override', '0', time() + 3600, COOKIEPATH, COOKIE_DOMAIN );
 			} elseif ( $_GET['z_theme_switcher'] === 'alt' ) {
 				setcookie( 'z_theme_switcher_override', '1', time() + 3600, COOKIEPATH, COOKIE_DOMAIN );
 			}
-			wp_redirect( remove_query_arg( 'z_theme_switcher' ) );
+
+			wp_safe_redirect( remove_query_arg( [ 'z_theme_switcher', '_zts_nonce' ] ) );
 			exit;
 		}
 	}
 
+
 	public function render_switch_theme_toggle() {
+		
 		$options = get_option( 'z_theme_switcher_plugin_options' );
 		if ( empty( $options['theme'] ) || ! self::user_has_roles( $options['roles'] ) ) return;
 
+		// Nieuw: alleen tonen als huidige user in toggle_roles zit
+		$current_user = wp_get_current_user();
+		$toggle_roles = isset( $options['toggle_roles'] ) ? (array) $options['toggle_roles'] : [];
+		if ( empty( array_intersect( $toggle_roles, (array) $current_user->roles ) ) ) return;
+				
+
 		$is_alt = isset( $_COOKIE['z_theme_switcher_override'] ) && $_COOKIE['z_theme_switcher_override'] === '1';
-		$url = add_query_arg( 'z_theme_switcher', $is_alt ? 'default' : 'alt' );
+
+		$nonce = wp_create_nonce( 'z_theme_switch' );
+		$url = add_query_arg( [
+			'z_theme_switcher' => $is_alt ? 'default' : 'alt',
+			'_zts_nonce' => $nonce,
+		] );
+
 		$label = $is_alt ? __('Back to the standard theme', 'z-theme-switcher') : __('Show switched theme', 'z-theme-switcher');
 
-		echo '<div style="position:fixed;bottom:20px;right:20px;z-index:9999;">
-			<a href="' . esc_url( $url ) . '" style="background:#0073aa;color:white;padding:10px 14px;border-radius:6px;text-decoration:none;font-size:14px;font-family:sans-serif; &:hover { background:#222; }">
+		echo '<p id="z-theme-switcher-button-toggle">
+			<a href="' . esc_url( $url ) . '" class="dashicons-before dashicons-image-rotate-right">
 				' . esc_html( $label ) . '
 			</a>
-		</div>';
+		</p>';
 	}
 
 

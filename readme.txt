@@ -1,4 +1,4 @@
-=== WP Theme Switcher ===
+=== Z Theme Switcher ===
 Contributors: martenmoolenaar
 Donate link: https://www.buymeacoffee.com/zodan
 Tags: switch theme, theme development, development
