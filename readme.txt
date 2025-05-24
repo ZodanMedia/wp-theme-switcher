@@ -25,9 +25,8 @@ This plugin does exactly that.
 
 It lets users with certain roles see another (than the currently active) theme, by 
 * Selecting a theme from the list of installed themes
-* Selecting which from the site's available roles are permitted to switch themes
-And
-* Optionally, you can show a 'switch theme' (or 'switch back') button on the front-end
+* Selecting which user roles are permitted to switch themes and
+* Optionally, selecting user roles that can use a 'switch theme/back' button on the front-end
 
 This plugin is under active development. Any feature requests are welcome at [plugins@zodan.nl](plugins@zodan.nl)!
 
