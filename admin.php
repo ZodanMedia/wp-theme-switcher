@@ -37,15 +37,15 @@ if ( !function_exists( 'z_theme_switcher_register_settings' ) ) {
 		// Voeg settings section toe
 		add_settings_section(
 			'z_theme_switcher_main_section',
-			__('Global settings', 'z-theme-switcher'),
-			'__return_false',
+			 esc_html__('Global settings', 'z-theme-switcher'),
+			'z_theme_switcher_main_section_text',
 			'z_theme_switcher_plugin'
 		);
 
         // Field: Theme selection
 		add_settings_field(
 			'z_theme_switcher_select_theme',
-			__('Theme to switch to', 'z-theme-switcher'),
+			esc_html__('Theme to switch to', 'z-theme-switcher'),    
 			'z_theme_switcher_render_theme_dropdown',
 			'z_theme_switcher_plugin',
 			'z_theme_switcher_main_section'
@@ -54,7 +54,8 @@ if ( !function_exists( 'z_theme_switcher_register_settings' ) ) {
         // Field: Role selection
 		add_settings_field(
 			'z_theme_switcher_select_roles',
-			__('Roles that can switch theme', 'z-theme-switcher'),
+			 esc_html__('Roles that can switch theme', 'z-theme-switcher') . '<span class="description">' .
+                esc_html__( 'These roles will see the selected theme in the front-end.', 'z-theme-switcher' ) . '</span>', 
 			'z_theme_switcher_render_roles_checkboxes',
 			'z_theme_switcher_plugin',
 			'z_theme_switcher_main_section'
@@ -63,14 +64,39 @@ if ( !function_exists( 'z_theme_switcher_register_settings' ) ) {
         // Field: Roles that can use the toggle
         add_settings_field(
             'z_theme_switcher_toggle_roles',
-            __('Roles that see the toggle button', 'z-theme-switcher'),
+             esc_html__('Roles with toggle button', 'z-theme-switcher') . '<span class="description">' .
+                wp_kses_post( sprintf(
+                    /* translators: %s: The term for button, keep the span with btn-switch-faux in the $format. */
+                    __( 'These roles will see a switch <span class="btn-switch-faux">%s</span> in the front-end', 'z-theme-switcher' ),
+                    __( 'button', 'z-theme-switcher' )
+                ) ),
             'z_theme_switcher_render_toggle_roles_checkboxes',
             'z_theme_switcher_plugin',
             'z_theme_switcher_main_section'
         );
+		// Voeg settings section toe
+		add_settings_section(
+			'z_theme_switcher_faq_section',
+			 esc_html__('Frequently asked questions', 'z-theme-switcher'),
+			'z_theme_switcher_faq_section_text',
+			'z_theme_switcher_plugin'
+		);
     }
 
     add_action( 'admin_init', 'z_theme_switcher_register_settings' );
+
+
+
+    function z_theme_switcher_main_section_text() { 
+        echo '<p>' . esc_html__('Here you can set all the options for using the WordPress Theme Switcher.', 'z-theme-switcher') . '</p>';
+        echo '<ol>';
+        echo '<li>' . esc_html__('Select the theme that users will switch to.', 'z-theme-switcher') . '</li>';
+        echo '<li>' . esc_html__('Select the user roles that automatically will see the selected theme on the front-end.', 'z-theme-switcher') . '</li>';
+        echo '<li>' . esc_html__('Select the user roles that will see a toggle button to switch between the selected theme and the currently active theme.', 'z-theme-switcher') . '</li>';
+        echo '</ol>';
+        echo '<p>(' . esc_html__('Note that the switch button will override the automatic theme switch when a user role is selectd in both settings.', 'z-theme-switcher') . ')</p>';
+        echo '<p>&nbsp;</p>';
+    }
 
     function z_theme_switcher_render_theme_dropdown() {
         $options = get_option( 'z_theme_switcher_plugin_options' );
@@ -150,31 +176,64 @@ if ( !function_exists( 'z_theme_switcher_register_settings' ) ) {
         return $output;
     }
 
-}
+
+    function z_theme_switcher_faq_section_text() { 
+        echo '<details class="z-ts-faq"><summary><h3>';
+        esc_html_e('The Switch theme button on the front-end is not showing. What to do?', 'z-theme-switcher');
+        echo '</h3></summary><p>';
+        esc_html_e('Hm. It could be that you are using a theme that does not call wp_footer() (which is the hook it is linked to).', 'z-theme-switcher');
+        echo '<br>';
+        esc_html_e('In that case, you can use the custom hook/action for this.', 'z-theme-switcher');
+        echo '<br>';
+        esc_html_e('Just add the following php code (make sure it is somehow called on every page)', 'z-theme-switcher');
+        echo ':</p>';
+        echo '<code>&lt;?php do_action("z_theme_switcher_show_toggle"); ?&gt;</code>';
+        echo '</details>';
+    }
 
 
-function z_theme_switcher_add_admin_menu() {
-    add_options_page(
-        __('WP Theme Switcher', 'z-theme-switcher'),
-        'WP Theme Switcher',
-        'manage_options',
-        'z_theme_switcher',
-        'z_theme_switcher_options_page'
-    );
-}
-add_action( 'admin_menu', 'z_theme_switcher_add_admin_menu' );
 
-function z_theme_switcher_options_page() {
-    ?>
-    <div class="wrap">
-        <h1><?php esc_html_e('WP Theme Switcher', 'z-theme-switcher'); ?></h1>
-        <form action="options.php" method="post">
-            <?php
-            settings_fields( 'z_theme_switcher_plugin_options' );
-            do_settings_sections( 'z_theme_switcher_plugin' );
-            submit_button();
-            ?>
-        </form>
-    </div>
-    <?php
+    function z_theme_switcher_add_admin_menu() {
+        add_options_page(
+            __('WP Theme Switcher', 'z-theme-switcher'),
+            'Theme Switcher',
+            'manage_options',
+            'z_theme_switcher',
+            'z_theme_switcher_options_page'
+        );
+    }
+    add_action( 'admin_menu', 'z_theme_switcher_add_admin_menu' );
+
+
+    function z_theme_switcher_options_page() {
+        ?>
+        <div class="wrap">
+            <h1><?php esc_html_e('WP Theme Switcher settings', 'z-theme-switcher'); ?></h1>
+            <form action="options.php" method="post">
+                <?php
+                settings_fields( 'z_theme_switcher_plugin_options' );
+                do_settings_sections( 'z_theme_switcher_plugin' );
+                submit_button();
+                ?>
+            </form>
+        </div>
+        <?php
+    }
+
+
+    /*
+    * Enqueue scripts and styles
+    *
+    *
+    */
+    add_action( 'admin_enqueue_scripts', 'z_theme_switcher_add_admin_scripts' );
+    function z_theme_switcher_add_admin_scripts( $hook ) {
+        if ( is_admin() ) {
+            $plugin_url = plugins_url( '/', __FILE__ );
+            $admin_css = $plugin_url . 'assets/admin-styles.css';
+            wp_enqueue_style( 'z-theme-switcher-admin-styles', esc_url($admin_css), array(), '1.0' );
+        }
+    }
+
+
 }

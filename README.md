@@ -1,8 +1,7 @@
 # z-theme-switcher
-> A WordPress plugin that lets selected user roles switch temporarily and non-persistent to another (than the active) theme.
+> A WordPress pulgin that lets selected user roles switch temporarily and non-persistent to another (than the active) theme.
 
-When we are developing themes, we quite often like to switch between the old (active) and the new (to develop) version of a theme. Sometimes without other people noticing.
-This plugin does exactly that.
+In most of our custom WordPress themes, we like to view our pages without the admin bar. Still, while developing or maintaining a website, we like to have access to some of the most common admin items. This tiny menu helps a bit.
 
 
 **Project page**
@@ -32,3 +31,4 @@ This should work as of WordPress v5.5 up till v6.8
 ## Contributing
 
 If you have feature suggestions or if you experience problems, drop us a line: plugins@zodan.nl.
+

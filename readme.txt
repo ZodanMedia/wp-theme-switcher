@@ -1,5 +1,5 @@
 === Z Theme Switcher ===
-Contributors: martenmoolenaar
+Contributors: martenmoolenaar, zodannl
 Donate link: https://www.buymeacoffee.com/zodan
 Tags: switch theme, theme development, development
 Requires at least: 5.5
@@ -11,6 +11,7 @@ Author URI: https://zodan.nl
 Text Domain: z-theme-switcher
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
+
 
 Allow (certain) users(roles) to easily switch to another theme.
 Non-persistent, so regular users won't be bothered.
@@ -67,12 +68,13 @@ Yep. It does.
 
 = The Switch theme button on the front-end is not showing, can you help? =
 
-Hm. It could be that you are using a theme that does not call wp_footer (which is the hook it is linked to).
+Hm. It could be that you are using a theme that does not call wp_footer() (which is the hook it is linked to).
 In that case, you can use the custom hook/action for this.
 Just add the following php code (make sure it is somehow called on every page):
 `<?php do_action('z_theme_switcher_show_toggle'); ?>`
 
-= Do you have plans to improve the plugin =
+
+= Do you have plans to improve the plugin? =
 
 We currently have on our roadmap:
 * Adding translations
