@@ -6,7 +6,7 @@ In most of our custom WordPress themes, we like to view our pages without the ad
 
 **Project page**
 
-See https://speelwei.zodan.nl/wp-theme-switcher/
+See https://plugins.zodan.nl/wordpress-theme-switcher/
 
 
 ## What does it do?
