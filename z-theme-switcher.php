@@ -2,13 +2,13 @@
 /**
  * Plugin Name: Z Theme Switcher
  * Contributors: martenmoolenaar, zodannl
- * Plugin URI: https://speelwei.zodan.nl/wp-theme-switcher/
+ * Plugin URI: https://plugins.zodan.nl/wordpress-theme-switcher/
  * Tags: switch theme, theme development, development
  * Requires at least: 5.5
  * Tested up to: 6.8
  * Description: Switch temporarily and non-persistent to another active theme
- * Version: 1.0
- * Stable Tag: 1.0
+ * Version: 1.1
+ * Stable Tag: 1.1
  * Author: Zodan
  * Author URI: https://zodan.nl
  * Text Domain: z-theme-switcher
@@ -30,21 +30,21 @@ if ( !defined( 'WPINC' ) ) {
  * 
  */
 add_action( 'plugins_loaded', function() {
-	$instance = zSwitchTheme::get_instance();
+	$instance = z_theme_switcher_SWITCH::get_instance();
 	$instance->plugin_setup();
 } );
 
 add_action( 'setup_theme', function() {
-	zSwitchTheme::get_instance()->maybe_enable_theme_switch();
+	z_theme_switcher_SWITCH::get_instance()->maybe_enable_theme_switch();
 } );
 
 
 
 
-class zSwitchTheme {
+class z_theme_switcher_SWITCH {
 
 	protected static $instance = NULL;
-	public $plugin_version = '1.0';
+	public $plugin_version = '1.1';
 	public $plugin_url = '';
 	public $plugin_path = '';
 
@@ -69,8 +69,12 @@ class zSwitchTheme {
 		// Front-end only logic
 		if ( ! is_admin() && is_user_logged_in() ) {
 			add_action( 'wp_enqueue_scripts', function(){
-				$stylesheet = $this->plugin_url . '/styles.css';
-				wp_enqueue_style( 'z-theme-switcher-styles', esc_url($stylesheet), array( 'dashicons' ), 1.0 );
+				$stylesheet = $this->plugin_url . 'assets/styles.css';
+				wp_enqueue_style( 'z-theme-switcher-styles', esc_url($stylesheet), array( 'dashicons' ), $this->plugin_version );
+			});
+			add_action( 'wp_enqueue_scripts', function(){
+				$script = $this->plugin_url . 'assets/z-theme-switcher.js';
+				wp_enqueue_script( 'z-theme-switcher-scripts', esc_url($script), null, $this->plugin_version, array('in_footer' => true, 'strategy' => 'defer' ) );
 			});
         	
 			add_action( 'wp_footer', [ $this, 'render_switch_theme_toggle' ] );
@@ -83,17 +87,23 @@ class zSwitchTheme {
 	public function maybe_enable_theme_switch() {
 		if ( ! is_admin() && is_user_logged_in() ) {
 			$options = get_option( 'z_theme_switcher_plugin_options' );
-			if ( empty( $options['theme'] ) ) return;
-			if ( ! self::user_has_roles( $options['roles'] ) ) return;
-
 			$current_user = wp_get_current_user();
-			$toggle_roles = isset( $options['toggle_roles'] ) ? (array) $options['toggle_roles'] : [];
+			
+			// if a theme is set in the options
+			if ( empty( $options['theme'] ) ) {
+				return;
+			}
+			// if ther user has rights (by role)
+			if ( ! self::user_has_roles( $options['roles'] ) ) {
+				return;
+			}
 
+			// if the user can toggle roles
+			$toggle_roles = isset( $options['toggle_roles'] ) ? (array) $options['toggle_roles'] : [];
 			$user_in_toggle_roles = !empty( array_intersect( $toggle_roles, (array) $current_user->roles ) );
 
-			$override_cookie = isset( $_COOKIE['z_theme_switcher_override'] ) && $_COOKIE['z_theme_switcher_override'] === '1';
 
-			// Nieuw gedrag:
+			$override_cookie = isset( $_COOKIE['z_theme_switcher_override'] ) && $_COOKIE['z_theme_switcher_override'] === '1';
 			$override = $user_in_toggle_roles ? $override_cookie : true;
 
 			if ( $override ) {
@@ -139,22 +149,23 @@ class zSwitchTheme {
 
 
 	public function handle_theme_cookie() {
-		if ( isset( $_GET['z_theme_switcher'], $_GET['_zts_nonce'] ) ) {
+		if( isset( $_GET[ '_zts_nonce' ] ) ) {
 
-			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-			$nonce = isset( $_GET['_zts_nonce'] ) ? wp_unslash( $_GET['_zts_nonce'] ) : '';
-			if ( ! is_string( $nonce ) || ! wp_verify_nonce( $nonce, 'z_theme_switch' ) ) {
+			if( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET[ '_zts_nonce' ] ) ), 'z_theme_switch' ) ) {
 				wp_die( esc_html__( 'Security check failed', 'z-theme-switcher' ) );
 			}
 
-			if ( $_GET['z_theme_switcher'] === 'default' ) {
-				setcookie( 'z_theme_switcher_override', '0', time() + 3600, COOKIEPATH, COOKIE_DOMAIN );
-			} elseif ( $_GET['z_theme_switcher'] === 'alt' ) {
-				setcookie( 'z_theme_switcher_override', '1', time() + 3600, COOKIEPATH, COOKIE_DOMAIN );
-			}
+			if ( isset( $_GET['z_theme_switcher']) ) {
+				$switch = sanitize_text_field( wp_unslash( $_GET[ 'z_theme_switcher' ] ) );
 
-			wp_safe_redirect( remove_query_arg( [ 'z_theme_switcher', '_zts_nonce' ] ) );
-			exit;
+				if ( $switch === 'default' ) {
+					setcookie( 'z_theme_switcher_override', '0', time() + 3600, COOKIEPATH, COOKIE_DOMAIN );
+				} elseif ( $switch === 'alt' ) {
+					setcookie( 'z_theme_switcher_override', '1', time() + 3600, COOKIEPATH, COOKIE_DOMAIN );
+				}
+				wp_safe_redirect( remove_query_arg( [ 'z_theme_switcher', '_zts_nonce' ] ) );
+				exit;
+			}
 		}
 	}
 
@@ -164,12 +175,11 @@ class zSwitchTheme {
 		$options = get_option( 'z_theme_switcher_plugin_options' );
 		if ( empty( $options['theme'] ) || ! self::user_has_roles( $options['roles'] ) ) return;
 
-		// Nieuw: alleen tonen als huidige user in toggle_roles zit
+		// Only show when the user has a role within the toggle_roles
 		$current_user = wp_get_current_user();
 		$toggle_roles = isset( $options['toggle_roles'] ) ? (array) $options['toggle_roles'] : [];
 		if ( empty( array_intersect( $toggle_roles, (array) $current_user->roles ) ) ) return;
 				
-
 		$is_alt = isset( $_COOKIE['z_theme_switcher_override'] ) && $_COOKIE['z_theme_switcher_override'] === '1';
 
 		$nonce = wp_create_nonce( 'z_theme_switch' );
@@ -180,38 +190,15 @@ class zSwitchTheme {
 
 		$label = $is_alt ? __('Back to the standard theme', 'z-theme-switcher') : __('Show switched theme', 'z-theme-switcher');
 
-
 		// The custom element
 		echo '<z-theme-switcher></z-theme-switcher>';
-		
 		// Create the template
 		echo '<template id="z-theme-switcher-template">';
-	
 		// Output the actual button
-		echo '<p id="z-theme-switcher-button-toggle">
-			<a href="' . esc_url( $url ) . '">
-				' . esc_html( $label ) . '
-			</a>
-		</p>';
-			
-		// Include the minified stylesheet
-		echo '<style>p#z-theme-switcher-button-toggle{position:fixed;bottom:20px;right:0;z-index:9999;display:flex;justify-content:end;align-items:center;}p#z-theme-switcher-button-toggle a{font-family:sans-serif;text-decoration:none;font-size:14px;letter-spacing:1px;font-weight:500;border-radius:6px 0 0 6px;padding:10px 20px 10px 12px;background:#25ab84;color:white;transform:translateX(calc(100% - 44px));transition:all 250ms ease-in-out;}p#z-theme-switcher-button-toggle a::before{content: "";display: inline-block;width: 20px;height: 20px;vertical-align: bottom;background: transparent url("data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz48c3ZnIGlkPSJzd2l0Y2giIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmVyc2lvbj0iMS4xIiB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgdmlld0JveD0iMCAwIDUxMiA1MTIiPjxwYXRoIGlkPSJpY29uIiBmaWxsPSIjZmZmZmZmIiBkPSJNMjUzLjksMTIxLjZsLTI1LjUsMjUuNSw4Ni4yLDIuNS0xMC4xLTc4LjYtMjMuMywyMy4zYy0zNy44LTM3LjgtOTAuMS00MC43LTEzMS40LjVsMjcuNSwyNy41YzI3LjUtMjcuNSw1My44LTIzLjQsNzYuNS0uN1pNNiwyNjQuOGwxMzAuOC0xMzAuOCwxMTcuOCwxMTcuOCwxMTcuOC0xMTcuOCwxMzAuOCwxMzAuOC0xODMuMiwxODMuMi02NS40LTY1LjQtNjUuNCw2NS40TDYsMjY0LjhaTTU4LjMsMjY0LjhsMTMwLjgsMTMwLjgsMzkuMy0zOS4zLTM5LjMtMzkuMywzOS4zLTM5LjMtOTEuNi05MS42LTc4LjUsNzguNVpNMjQxLjUsMzE3LjJsNzguNSw3OC41LDEzMC44LTEzMC44LTc4LjUtNzguNS0xMzAuOCwxMzAuOFoiLz48L3N2Zz4=") no-repeat center center / cover;margin-right: 10px;transform: scale(1.35);transition:all 250ms ease-in-out;}p#z-theme-switcher-button-toggle a:focus-within,p#z-theme-switcher-button-toggle a:hover{transform:translateX(0);background:#233a33;}p#z-theme-switcher-button-toggle a:focus-within:before,p#z-theme-switcher-button-toggle a:hover:before{opacity: 0.35;transform:scale(1.1);}</style>';
-		
+		echo '<p id="z-theme-switcher-button-toggle"><a href="' . esc_url( $url ) . '">' . esc_html( $label ) . '</a></p>';
 		// end template
 		echo '</template>';
-			
-		// Include the JavaScript
-		echo '<script>customElements.define("z-theme-switcher",class extends HTMLElement{
-		constructor(){
-		super();
-		let template=document.getElementById("z-theme-switcher-template");
-		let templateContent=template.content;
-		const shadowRoot=this.attachShadow({mode:"open"});
-		shadowRoot.appendChild(templateContent.cloneNode(true));}});</script>';
-
 
 	}
-
-
 
 }

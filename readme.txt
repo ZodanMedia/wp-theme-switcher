@@ -5,7 +5,7 @@ Tags: switch theme, theme development, development
 Requires at least: 5.5
 Tested up to: 6.8
 Description: Switch temporarily and non-persistent to another (than the active) theme
-Stable tag: 1.0
+Stable tag: 1.1
 Author: Zodan
 Author URI: https://zodan.nl
 Text Domain: z-theme-switcher
@@ -35,16 +35,16 @@ This plugin is under active development. Any feature requests are welcome at [pl
 
 == Installation ==
 
-= Install the WP Theme Switcher from within WordPress =
+= Install the Theme Switcher from within WordPress =
 
 1. Visit the plugins page within your dashboard and select ‘Add New’;
-1. Search for ‘WP Theme Switcher’;
+1. Search for ‘Z Theme Switcher’;
 1. Activate the plugin from your Plugins page;
 1. Go to ‘after activation’ below.
 
 = Install manually =
 
-1. Unzip the WP Theme Switcher zip file
+1. Unzip the Theme Switcher zip file
 2. Upload the unzipped folder to the /wp-content/plugins/ directory;
 3. Activate the plugin through the ‘Plugins’ menu in WordPress;
 4. Go to ‘after activation’ below.
@@ -53,7 +53,7 @@ This plugin is under active development. Any feature requests are welcome at [pl
 = After activation =
 
 1. On the Plugins page in WordPress you will see a 'settings' link below the plugin name;
-2. On the WP Theme Switcher settings page:
+2. On the Theme Switcher settings page:
 **  Select the theme you want to be able to switch to
 **  Select the roles with the permission to switch
 3. Save your settings and you’re done!
@@ -87,6 +87,9 @@ If you have a feature suggestion, send us an email at [plugins@zodan.nl](plugins
 
 
 == Changelog ==
+
+= 1.1 =
+* Changed front-end JS and CSS loading method
 
 = 1.0 =
 * Very first version of this plugin
