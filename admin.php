@@ -14,6 +14,9 @@ if ( !defined( 'WPINC' ) ) {
 }
 
 
+if ( ! defined( 'Z_THEME_SWITCHER_VERSION' ) ) {
+	define( 'Z_THEME_SWITCHER_VERSION', '1.3' );
+}
 
 
 
@@ -74,6 +77,17 @@ if ( !function_exists( 'z_theme_switcher_register_settings' ) ) {
             'z_theme_switcher_plugin',
             'z_theme_switcher_main_section'
         );
+
+        // Field: Role selection
+		add_settings_field(
+			'z_theme_switcher_permanent_roles',
+			 esc_html__('Roles backend', 'z-theme-switcher') . '<span class="description">' .
+                esc_html__( 'These roles will also have the selected theme in the back-end.', 'z-theme-switcher' ) . '</span>', 
+			'z_theme_switcher_render_permanent_roles_checkboxes',
+			'z_theme_switcher_plugin',
+			'z_theme_switcher_main_section'
+		);
+
 		// Voeg settings section toe
 		add_settings_section(
 			'z_theme_switcher_faq_section',
@@ -148,6 +162,25 @@ if ( !function_exists( 'z_theme_switcher_register_settings' ) ) {
         }
     }
 
+    function z_theme_switcher_render_permanent_roles_checkboxes() {
+        global $wp_roles;
+        $roles = $wp_roles->roles;
+        $options = get_option( 'z_theme_switcher_plugin_options' );
+        $enabled_roles = isset( $options['roles_permanent'] ) ? $options['roles_permanent'] : array();
+
+        foreach ( $roles as $role_slug => $role_details ) {
+            printf(
+                '<label><input type="checkbox" name="z_theme_switcher_plugin_options[roles_permanent][]" value="%s" %s> %s</label><br>',
+                esc_attr( $role_slug ),
+                checked( in_array( $role_slug, $enabled_roles ), true, false ),
+                esc_html( $role_details['name'] )
+            );
+        }
+    }
+
+
+
+
 
     function z_theme_switcher_plugin_options_validate( $input ) {
         $output = array();
@@ -173,6 +206,13 @@ if ( !function_exists( 'z_theme_switcher_register_settings' ) ) {
             $output['toggle_roles'] = array_map( 'sanitize_text_field', $valid_toggle_roles );
         }
 
+        if ( isset( $input['roles_permanent'] ) && is_array( $input['roles_permanent'] ) ) {
+            global $wp_roles;
+            $all_roles = array_keys( $wp_roles->roles );
+            $valid_roles = array_intersect( $input['roles_permanent'], $all_roles );
+            $output['roles_permanent'] = array_map( 'sanitize_text_field', $valid_roles );
+        }
+
         return $output;
     }
 
@@ -190,8 +230,7 @@ if ( !function_exists( 'z_theme_switcher_register_settings' ) ) {
         echo '<code>&lt;?php do_action("z_theme_switcher_show_toggle"); ?&gt;</code>';
         echo '</details>';
     }
-
-
+    
 
     function z_theme_switcher_add_admin_menu() {
         add_options_page(
@@ -228,10 +267,20 @@ if ( !function_exists( 'z_theme_switcher_register_settings' ) ) {
     */
     add_action( 'admin_enqueue_scripts', 'z_theme_switcher_add_admin_scripts' );
     function z_theme_switcher_add_admin_scripts( $hook ) {
+
         if ( is_admin() ) {
+
             $plugin_url = plugins_url( '/', __FILE__ );
             $admin_css = $plugin_url . 'assets/admin-styles.css';
-            wp_enqueue_style( 'z-theme-switcher-admin-styles', esc_url($admin_css), array(), '1.0' );
+            wp_enqueue_style( 'z-theme-switcher-admin-styles', esc_url($admin_css), array(), Z_THEME_SWITCHER_VERSION );
+
+            $admin_js = $plugin_url . 'assets/admin-scripts.js';
+            wp_register_script( 'z-theme-switcher-admin-scripts', esc_url( $admin_js ) , array( 'jquery' ), Z_THEME_SWITCHER_VERSION, array( 'in_footer' => true ) );
+            wp_localize_script('z-theme-switcher-admin-scripts', 'z_theme_switcher_admin', array(
+                    'copiedText' => esc_html__('PHP code copied!', 'z-theme-switcher'),
+                )
+            );
+            wp_enqueue_script( 'z-theme-switcher-admin-scripts' );
         }
     }
 

@@ -7,8 +7,8 @@
  * Requires at least: 5.5
  * Tested up to: 6.8
  * Description: Switch temporarily and non-persistent to another active theme
- * Version: 1.1
- * Stable Tag: 1.1
+ * Version: 1.3
+ * Stable Tag: 1.3
  * Author: Zodan
  * Author URI: https://zodan.nl
  * Text Domain: z-theme-switcher
@@ -44,7 +44,7 @@ add_action( 'setup_theme', function() {
 class z_theme_switcher_SWITCH {
 
 	protected static $instance = NULL;
-	public $plugin_version = '1.1';
+	public $plugin_version = '1.3';
 	public $plugin_url = '';
 	public $plugin_path = '';
 
@@ -85,7 +85,7 @@ class z_theme_switcher_SWITCH {
 	}
 
 	public function maybe_enable_theme_switch() {
-		if ( ! is_admin() && is_user_logged_in() ) {
+		if ( is_user_logged_in() ) {
 			$options = get_option( 'z_theme_switcher_plugin_options' );
 			$current_user = wp_get_current_user();
 			
@@ -93,8 +93,12 @@ class z_theme_switcher_SWITCH {
 			if ( empty( $options['theme'] ) ) {
 				return;
 			}
-			// if ther user has rights (by role)
+			// if the user has rights (by role)
 			if ( ! self::user_has_roles( $options['roles'] ) ) {
+				return;
+			}
+			// if the user has no backend rights and we're is the backend
+			if ( is_admin() && ! self::user_has_roles( $options['roles_permanent'] ) ) {
 				return;
 			}
 
