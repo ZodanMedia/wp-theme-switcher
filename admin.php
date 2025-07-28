@@ -15,7 +15,7 @@ if ( !defined( 'WPINC' ) ) {
 
 
 if ( ! defined( 'Z_THEME_SWITCHER_VERSION' ) ) {
-	define( 'Z_THEME_SWITCHER_VERSION', '1.3' );
+	define( 'Z_THEME_SWITCHER_VERSION', '1.3.1' );
 }
 
 
@@ -245,6 +245,7 @@ if ( !function_exists( 'z_theme_switcher_register_settings' ) ) {
 
 
     function z_theme_switcher_options_page() {
+        add_filter('admin_footer_text', 'z_theme_switcher_admin_footer_print_thankyou', 900);
         ?>
         <div class="wrap">
             <h1><?php esc_html_e('WP Theme Switcher settings', 'z-theme-switcher'); ?></h1>
@@ -284,5 +285,15 @@ if ( !function_exists( 'z_theme_switcher_register_settings' ) ) {
         }
     }
 
+
+    function z_theme_switcher_admin_footer_print_thankyou( $data ) {
+            $data = '<p class="zThanks"><a href="https://zodan.nl" target="_blank" rel="noreferrer">' .
+                        esc_html__('Made with', 'z-theme-switcher') . 
+                        '<svg id="heart" data-name="heart" xmlns="http://www.w3.org/2000/svg" width="745.2" height="657.6" version="1.1" viewBox="0 0 745.2 657.6"><path class="heart" d="M372,655.6c-2.8,0-5.5-1.3-7.2-3.6-.7-.9-71.9-95.4-159.9-157.6-11.7-8.3-23.8-16.3-36.5-24.8-60.7-40.5-123.6-82.3-152-151.2C0,278.9-1.4,217.6,12.6,158.6,28,93.5,59,44.6,97.8,24.5,125.3,10.2,158.1,2.4,190.2,2.4s.3,0,.4,0c34.7,0,66.5,9,92.2,25.8,22.4,14.6,70.3,78,89.2,103.7,18.9-25.7,66.8-89,89.2-103.7,25.7-16.8,57.6-25.7,92.2-25.8,32.3-.1,65.2,7.8,92.8,22.1h0c38.7,20.1,69.8,69,85.2,134.1,14,59.1,12.5,120.3-3.8,159.8-28.5,69-91.3,110.8-152,151.2-12.8,8.5-24.8,16.5-36.5,24.8-88.1,62.1-159.2,156.6-159.9,157.6-1.7,2.3-4.4,3.6-7.2,3.6Z"></path></svg>' .
+                        esc_html__('by Zodan', 'z-theme-switcher') .
+                    '</a></p>';
+
+            return $data;
+        }
 
 }
