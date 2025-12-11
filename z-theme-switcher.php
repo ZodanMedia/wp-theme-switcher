@@ -5,7 +5,7 @@
  * Plugin URI: https://plugins.zodan.nl/wordpress-theme-switcher/
  * Tags: switch theme, theme development, development
  * Requires at least: 5.5
- * Tested up to: 6.8
+ * Tested up to: 6.9
  * Description: Switch temporarily and non-persistent to another active theme
  * Version: 1.3.1
  * Stable Tag: 1.3.1
