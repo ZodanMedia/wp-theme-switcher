@@ -1,4 +1,4 @@
-=== Z Theme Switcher ===
+=== Zodan Theme Switcher ===
 Contributors: martenmoolenaar, zodannl
 Donate link: https://www.buymeacoffee.com/zodan
 Tags: switch theme, theme development, development
@@ -39,7 +39,7 @@ This plugin is under active development. Any feature requests are welcome at [pl
 = Install the Theme Switcher from within WordPress =
 
 1. Visit the plugins page within your dashboard and select ‘Add New’;
-1. Search for ‘Z Theme Switcher’;
+1. Search for ‘Zodan Theme Switcher’;
 1. Activate the plugin from your Plugins page;
 1. Go to ‘after activation’ below.
 
@@ -91,7 +91,7 @@ If you have a feature suggestion, send us an email at [plugins@zodan.nl](plugins
 
 = 1.3.1 =
 * Removed load_text_domain()
-* Fixed text domain  mismatch
+* Fixed text domain mismatch
 
 = 1.3 =
 * Added setting to also switch in the backend

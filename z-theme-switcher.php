@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name: Z Theme Switcher
+ * Plugin Name: Zodan Theme Switcher
  * Contributors: martenmoolenaar, zodannl
  * Plugin URI: https://plugins.zodan.nl/wordpress-theme-switcher/
  * Tags: switch theme, theme development, development
