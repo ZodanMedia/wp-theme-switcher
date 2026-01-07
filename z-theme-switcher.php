@@ -7,8 +7,8 @@
  * Requires at least: 5.5
  * Tested up to: 6.9
  * Description: Switch temporarily and non-persistent to another active theme
- * Version: 1.3.1
- * Stable Tag: 1.3.1
+ * Version: 1.3.2
+ * Stable Tag: 1.3.2
  * Author: Zodan
  * Author URI: https://zodan.nl
  * Text Domain: z-theme-switcher
@@ -23,6 +23,12 @@
 if ( !defined( 'WPINC' ) ) {
     die;
 }
+
+if ( ! defined( 'ZODAN_THEME_SWITCHER_VERSION' ) ) {
+	define( 'ZODAN_THEME_SWITCHER_VERSION', '1.3.2' );
+}
+
+
 
 /**
  * Start: create an instance after the plugins have loaded
@@ -44,7 +50,7 @@ add_action( 'setup_theme', function() {
 class z_theme_switcher_SWITCH {
 
 	protected static $instance = NULL;
-	public $plugin_version = '1.3.1';
+	public $plugin_version = ZODAN_THEME_SWITCHER_VERSION;
 	public $plugin_url = '';
 	public $plugin_path = '';
 

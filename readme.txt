@@ -5,8 +5,8 @@ Tags: switch theme, theme development, development
 Requires at least: 5.5
 Tested up to: 6.9
 Description: Switch temporarily and non-persistent to another (than the active) theme
-Version: 1.3.1
-Stable tag: 1.3.1
+Version: 1.3.2
+Stable tag: 1.3.2
 Author: Zodan
 Author URI: https://zodan.nl
 Text Domain: z-theme-switcher
@@ -88,6 +88,9 @@ If you have a feature suggestion, send us an email at [plugins@zodan.nl](plugins
 
 
 == Changelog ==
+
+= 1.3.2 =
+* Name changes
 
 = 1.3.1 =
 * Removed load_text_domain()

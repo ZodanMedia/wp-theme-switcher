@@ -25,7 +25,7 @@ Any feature requests are welcome at plugins@zodan.nl.
 
 ## WordPress version support
 
-This should work as of WordPress v5.5 up till v6.8
+This should work as of WordPress v5.5 up till v6.9
 
 
 ## Contributing

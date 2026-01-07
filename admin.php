@@ -13,13 +13,6 @@ if ( !defined( 'WPINC' ) ) {
     die;
 }
 
-
-if ( ! defined( 'Z_THEME_SWITCHER_VERSION' ) ) {
-	define( 'Z_THEME_SWITCHER_VERSION', '1.3.1' );
-}
-
-
-
 /*
  * 2. Register all settings
  *
@@ -273,10 +266,10 @@ if ( !function_exists( 'z_theme_switcher_register_settings' ) ) {
 
             $plugin_url = plugins_url( '/', __FILE__ );
             $admin_css = $plugin_url . 'assets/admin-styles.css';
-            wp_enqueue_style( 'z-theme-switcher-admin-styles', esc_url($admin_css), array(), Z_THEME_SWITCHER_VERSION );
+            wp_enqueue_style( 'z-theme-switcher-admin-styles', esc_url($admin_css), array(), ZODAN_THEME_SWITCHER_VERSION );
 
             $admin_js = $plugin_url . 'assets/admin-scripts.js';
-            wp_register_script( 'z-theme-switcher-admin-scripts', esc_url( $admin_js ) , array( 'jquery' ), Z_THEME_SWITCHER_VERSION, array( 'in_footer' => true ) );
+            wp_register_script( 'z-theme-switcher-admin-scripts', esc_url( $admin_js ) , array( 'jquery' ), ZODAN_THEME_SWITCHER_VERSION, array( 'in_footer' => true ) );
             wp_localize_script('z-theme-switcher-admin-scripts', 'z_theme_switcher_admin', array(
                     'copiedText' => esc_html__('PHP code copied!', 'z-theme-switcher'),
                 )
