@@ -3,7 +3,7 @@ Contributors: martenmoolenaar, zodannl
 Donate link: https://www.buymeacoffee.com/zodan
 Tags: switch theme, theme development, development
 Requires at least: 5.5
-Tested up to: 7.0
+Tested up to: 7.1.2
 Description: Switch temporarily and non-persistent to another (than the active) theme
 Version: 1.3.2
 Stable tag: 1.3.2
